@@ -460,7 +460,11 @@ add_library(${PROJECT_NAME} OBJECT
 #	src/platform/psp/psp_input_buttons.cpp
 
 # Include directories
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME}
+	PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 # Optimize floating point math functions into intrinsics and don't check or set errno (i.e. sqrt(-1))
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -1286,6 +1290,57 @@ else()
 	else()
 		message(FATAL_ERROR "Unsupported library target platform ${PLAYER_TARGET_PLATFORM}")
 	endif()
+endif()
+
+option(PLAYER_WITH_MULTIPLAYER "Enable multiplayer library" ON)
+if(PLAYER_WITH_MULTIPLAYER)
+	add_library(multirpg
+		src/multirpg/player.h
+		src/multirpg/player.cpp
+	)
+	target_link_libraries(multirpg PRIVATE ${PROJECT_NAME})
+
+	target_include_directories(multirpg
+		PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/multirpg>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+	)
+
+	#get_target_property(MULTIRPG_HEADERS multirpg INTERFACE_SOURCES)
+	#list(FILTER MULTIRPG_HEADERS INCLUDE REGEX ".h$")
+	set(MULTIRPG_HEADERS
+		src/multirpg/player.h
+	)
+
+	install(TARGETS ${PROJECT_NAME} multirpg
+		EXPORT multirpg-export
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	)
+	install(FILES ${MULTIRPG_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/multirpg)
+
+	install(EXPORT multirpg-export FILE multirpg-targets.cmake
+		NAMESPACE multirpg:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/multirpg
+	)
+
+	include(CMakePackageConfigHelpers)
+	configure_package_config_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake/multirpg-config.cmake.in
+		${CMAKE_CURRENT_BINARY_DIR}/multirpg-config.cmake
+		INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/multirpg
+	)
+
+	#write_basic_package_version_file(
+	#	${CMAKE_CURRENT_BINARY_DIR}/multirpg-config-version.cmake
+	#	COMPATIBILITY ExactVersion
+	#)
+
+	install(FILES
+		${CMAKE_CURRENT_BINARY_DIR}/multirpg-config.cmake
+		#${CMAKE_CURRENT_BINARY_DIR}/multirpg-config-version.cmake
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/multirpg
+	)
 endif()
 
 # manpage
