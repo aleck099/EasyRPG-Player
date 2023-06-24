@@ -1302,7 +1302,7 @@ if(PLAYER_WITH_MULTIPLAYER)
 
 	target_include_directories(multirpg
 		PUBLIC
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/multirpg>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	)
 
@@ -1319,28 +1319,6 @@ if(PLAYER_WITH_MULTIPLAYER)
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
 	install(FILES ${MULTIRPG_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/multirpg)
-
-	install(EXPORT multirpg-export FILE multirpg-targets.cmake
-		NAMESPACE multirpg:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/multirpg
-	)
-
-	include(CMakePackageConfigHelpers)
-	configure_package_config_file(
-		${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake/multirpg-config.cmake.in
-		${CMAKE_CURRENT_BINARY_DIR}/multirpg-config.cmake
-		INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/multirpg
-	)
-
-	#write_basic_package_version_file(
-	#	${CMAKE_CURRENT_BINARY_DIR}/multirpg-config-version.cmake
-	#	COMPATIBILITY ExactVersion
-	#)
-
-	install(FILES
-		${CMAKE_CURRENT_BINARY_DIR}/multirpg-config.cmake
-		#${CMAKE_CURRENT_BINARY_DIR}/multirpg-config-version.cmake
-		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/multirpg
-	)
 endif()
 
 # manpage
